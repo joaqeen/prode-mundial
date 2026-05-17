@@ -1,0 +1,17 @@
+name: Sincronizar partidos Mundial
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # cada 30 minutos
+  workflow_dispatch:         # permite ejecutarlo manualmente desde GitHub
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar a Edge Function
+        run: |
+          curl -X POST \
+            "https://lohaulelpyyhorkwdehu.supabase.co/functions/v1/sincronizar-partidos" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaGF1bGVscHl5aG9ya3dkZWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODk5MzMsImV4cCI6MjA5NDM2NTkzM30.vU24EQHoYOye40GCQp3cA3q56Toa3I0ln43JihvomUQ"
