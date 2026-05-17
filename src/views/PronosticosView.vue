@@ -1,13 +1,14 @@
 <template>
   <div>
     <h1>Hola, {{ jugadorStore.jugador?.nombre }}</h1>
-    <h2>Tus pronósticos</h2>
 
     <p v-if="cargando">Cargando partidos...</p>
     <p v-if="error">{{ error }}</p>
 
-    <div v-for="partido in partidos" :key="partido.id">
-      <div>
+    <div v-for="(partidos, grupo) in partidosPorGrupo" :key="grupo">
+      <h2>{{ grupo }}</h2>
+
+      <div v-for="partido in partidos" :key="partido.id">
         <span>{{ partido.equipo_local }}</span>
 
         <input
@@ -44,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useJugadorStore } from '../stores/jugador'
 import { useRouter } from 'vue-router'
@@ -57,15 +58,31 @@ const guardado     = ref({})
 const cargando     = ref(false)
 const error        = ref('')
 
-// Si no hay jugador en el store, volver al inicio
 if (!jugadorStore.jugador) {
   router.push('/')
 }
 
+// Agrupa los partidos por grupo usando computed
+// computed recalcula automáticamente cuando cambia partidos.value
+const partidosPorGrupo = computed(() => {
+  const grupos = {}
+
+  partidos.value.forEach(p => {
+    // Los partidos sin grupo son de eliminación directa, los agrupamos aparte
+    const clave = p.grupo ? p.grupo.replace('GROUP_', 'Grupo ') : p.fase
+
+    if (!grupos[clave]) {
+      grupos[clave] = []
+    }
+    grupos[clave].push(p)
+  })
+
+  return grupos
+})
+
 onMounted(async () => {
   cargando.value = true
 
-  // Traer todos los partidos ordenados por fecha
   const { data, error: err } = await supabase
     .from('partidos')
     .select('*')
@@ -79,18 +96,15 @@ onMounted(async () => {
 
   partidos.value = data
 
-  // Inicializar estructura de pronósticos con 0
   data.forEach(p => {
     pronosticos.value[p.id] = { goles_local: 0, goles_visitante: 0 }
   })
 
-  // Traer pronósticos existentes del jugador
   const { data: existentes } = await supabase
     .from('pronosticos')
     .select('*')
     .eq('jugador_id', jugadorStore.jugador.id)
 
-  // Pisar los valores con los que ya cargó
   existentes?.forEach(p => {
     pronosticos.value[p.partido_id] = {
       goles_local:     p.goles_local,

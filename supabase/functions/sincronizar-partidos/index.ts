@@ -26,18 +26,19 @@ Deno.serve(async () => {
     })
   }
 
-  const partidos = matches
-    .filter((m: any) => m.homeTeam.name && m.awayTeam.name)  // ← solo partidos con equipos definidos
-    .map((m: any) => ({
-      api_fixture_id:   m.id,
-      equipo_local:     m.homeTeam.name,
-      equipo_visitante: m.awayTeam.name,
-      fecha:            m.utcDate,
-      fase:             m.stage,
-      goles_local:      m.score.fullTime.home,
-      goles_visitante:  m.score.fullTime.away,
-      finalizado:       m.status === 'FINISHED'
-    }))
+const partidos = matches
+  .filter((m: any) => m.homeTeam.name && m.awayTeam.name)
+  .map((m: any) => ({
+    api_fixture_id:   m.id,
+    equipo_local:     m.homeTeam.name,
+    equipo_visitante: m.awayTeam.name,
+    fecha:            m.utcDate,
+    fase:             m.stage,
+    grupo:            m.group,        
+    goles_local:      m.score.fullTime.home,
+    goles_visitante:  m.score.fullTime.away,
+    finalizado:       m.status === 'FINISHED'
+  }))
 
   const { error } = await supabase
     .from('partidos')
