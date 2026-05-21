@@ -68,8 +68,7 @@ const partidosPorGrupo = computed(() => {
   const grupos = {}
 
   partidos.value.forEach(p => {
-    // Los partidos sin grupo son de eliminación directa, los agrupamos aparte
-    const clave = p.grupo ? p.grupo.replace('GROUP_', 'Grupo ') : p.fase
+    const clave = p.grupo.replace('GROUP_', 'Grupo ')
 
     if (!grupos[clave]) {
       grupos[clave] = []
