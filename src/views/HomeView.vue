@@ -4,7 +4,6 @@
     <header class="hero">
       <div class="hero-rays"></div>
       <div class="hero-content">
-        <div class="ball">⚽</div>
         <h1 class="hero-title">PRODE</h1>
         <p class="hero-sub">MUNDIAL 2026</p>
       </div>
@@ -20,7 +19,7 @@
           <input
             v-model="nombre"
             class="input"
-            placeholder="Ej: Juan García"
+            placeholder="Ej: Juan Pérez"
             @keyup.enter="ingresar"
           />
         </div>

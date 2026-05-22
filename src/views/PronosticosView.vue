@@ -35,7 +35,7 @@
 
             <div class="partido-row">
               <div class="equipo equipo-local">
-                <span class="flag-icon" :class="'flag-icon-' + getFlag(partido.equipo_local)"></span>
+                <img v-if="partido.crest_local" :src="partido.crest_local" class="crest" />
                 <span class="equipo-name">{{ partido.equipo_local }}</span>
               </div>
 
@@ -72,7 +72,7 @@
               </div>
 
               <div class="equipo equipo-visitante">
-                <span class="flag-icon" :class="'flag-icon-' + getFlag(partido.equipo_visitante)"></span>
+                <img v-if="partido.crest_visitante" :src="partido.crest_visitante" class="crest" />
                 <span class="equipo-name">{{ partido.equipo_visitante }}</span>
               </div>
             </div>
@@ -109,35 +109,6 @@ const iniciales = computed(() => {
   const n = jugadorStore.jugador?.nombre ?? ''
   return n.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
 })
-
-// Diccionario nombre en inglés → código ISO de bandera
-const FLAGS = {
-  'Argentina': 'ar', 'Brazil': 'br', 'France': 'fr', 'Germany': 'de',
-  'Spain': 'es', 'Portugal': 'pt', 'England': 'gb-eng', 'Italy': 'it',
-  'Netherlands': 'nl', 'Belgium': 'be', 'Uruguay': 'uy', 'Colombia': 'co',
-  'Chile': 'cl', 'Ecuador': 'ec', 'Peru': 'pe', 'Venezuela': 've',
-  'Bolivia': 'bo', 'Paraguay': 'py', 'Mexico': 'mx', 'United States': 'us',
-  'Canada': 'ca', 'Costa Rica': 'cr', 'Panama': 'pa', 'Honduras': 'hn',
-  'El Salvador': 'sv', 'Jamaica': 'jm', 'Trinidad and Tobago': 'tt',
-  'Morocco': 'ma', 'Senegal': 'sn', 'Nigeria': 'ng', 'Ghana': 'gh',
-  'Cameroon': 'cm', 'Ivory Coast': 'ci', 'Egypt': 'eg', 'Algeria': 'dz',
-  'Tunisia': 'tn', 'South Africa': 'za', 'Japan': 'jp', 'South Korea': 'kr',
-  'Australia': 'au', 'Iran': 'ir', 'Saudi Arabia': 'sa', 'Qatar': 'qa',
-  'China': 'cn', 'Indonesia': 'id', 'Iraq': 'iq', 'Jordan': 'jo',
-  'Uzbekistan': 'uz', 'Croatia': 'hr', 'Serbia': 'rs', 'Poland': 'pl',
-  'Switzerland': 'ch', 'Denmark': 'dk', 'Sweden': 'se', 'Norway': 'no',
-  'Austria': 'at', 'Czech Republic': 'cz', 'Hungary': 'hu', 'Slovakia': 'sk',
-  'Romania': 'ro', 'Turkey': 'tr', 'Greece': 'gr', 'Ukraine': 'ua',
-  'Russia': 'ru', 'Scotland': 'gb-sct', 'Wales': 'gb-wls', 'Ireland': 'ie',
-  'New Zealand': 'nz', 'Bahrain': 'bh', 'Palestine': 'ps',
-  'United Arab Emirates': 'ae', 'Oman': 'om', 'Kuwait': 'kw',
-  'Congo DR': 'cd', 'Zambia': 'zm', 'Zimbabwe': 'zw', 'Kenya': 'ke',
-  'Guatemala': 'gt', 'Cuba': 'cu', 'Haiti': 'ht',
-}
-
-function getFlag(pais) {
-  return FLAGS[pais] ?? 'un'
-}
 
 const ORDEN_GRUPOS = [
   'Grupo A','Grupo B','Grupo C','Grupo D','Grupo E','Grupo F',
@@ -188,8 +159,7 @@ onMounted(async () => {
 })
 
 function cambiarGol(partidoId, campo, delta) {
-  const actual = pronosticos.value[partidoId][campo]
-  pronosticos.value[partidoId][campo] = Math.max(0, actual + delta)
+  pronosticos.value[partidoId][campo] = Math.max(0, pronosticos.value[partidoId][campo] + delta)
 }
 
 async function guardar(partidoId) {
@@ -218,8 +188,6 @@ function formatFecha(fecha) {
 </script>
 
 <style scoped>
-@import 'https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css';
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 .page {
@@ -259,17 +227,22 @@ function formatFecha(fecha) {
 
 .btn-ranking {
   background: rgba(255,255,255,0.15); color: #fff;
-  border: 1px solid rgba(255,255,255,0.3); border-radius: 20px;
-  padding: 0.35rem 0.9rem; font-size: 0.8rem; font-weight: 600;
-  text-decoration: none; transition: background 0.2s;
+  border: 1.5px solid rgba(255,255,255,0.4); border-radius: 8px;
+  padding: 0.5rem 1.25rem; font-size: 1rem; font-weight: 700;
+  text-decoration: none; transition: background 0.2s; letter-spacing: 0.5px;
 }
 .btn-ranking:hover { background: rgba(255,255,255,0.25); }
 
 .hero-strip {
   background: linear-gradient(135deg, #1a6db5, #2a9fd6);
-  text-align: center; padding: 0.6rem;
+  text-align: center; padding: 1rem;
 }
-.hero-text { color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; }
+.hero-text {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
 
 .container {
   max-width: 900px;
@@ -285,9 +258,7 @@ function formatFecha(fecha) {
 }
 
 .grupo-section { margin-bottom: 1.75rem; }
-
 .grupo-header { margin-bottom: 0.75rem; }
-
 .grupo-label {
   background: linear-gradient(135deg, #0d4a8a, #1a6db5);
   color: #fff; font-size: 0.8rem; font-weight: 700;
@@ -295,26 +266,21 @@ function formatFecha(fecha) {
   letter-spacing: 1px; text-transform: uppercase;
 }
 
-/* GRILLA 2 COLUMNAS */
 .partidos-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
 }
-
 @media (max-width: 600px) {
   .partidos-grid { grid-template-columns: 1fr; }
 }
 
 .partido-card {
-  background: #fff;
-  border-radius: 12px;
+  background: #fff; border-radius: 12px;
   padding: 0.75rem 0.85rem;
   box-shadow: 0 2px 8px rgba(26, 109, 181, 0.08);
   border: 1px solid rgba(26, 109, 181, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
 }
 .partido-card.finalizado { opacity: 0.65; }
 
@@ -324,61 +290,42 @@ function formatFecha(fecha) {
 }
 
 .partido-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 0.4rem;
 }
 
 .equipo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  flex: 1;
-  min-width: 0;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.3rem;
+  flex: 1; min-width: 0;
 }
 
-.flag-icon {
-  width: 2rem !important;
-  height: 1.4rem !important;
-  border-radius: 3px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  flex-shrink: 0;
+.crest {
+  width: 36px; height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
 }
 
 .equipo-name {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #1a3a5c;
-  text-align: center;
-  line-height: 1.2;
-  word-break: break-word;
+  font-size: 0.72rem; font-weight: 700; color: #1a3a5c;
+  text-align: center; line-height: 1.2; word-break: break-word;
 }
 
 .score-block {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
+  display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0;
 }
 
 .score-input-group {
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-  background: #f0f8ff;
-  border-radius: 8px;
-  padding: 0.15rem;
-  border: 1px solid #b8d9f0;
+  display: flex; align-items: center; gap: 0.2rem;
+  background: #f0f8ff; border-radius: 8px;
+  padding: 0.15rem; border: 1px solid #b8d9f0;
 }
 
 .score-btn {
-  width: 26px; height: 26px;
-  border: none; border-radius: 6px;
+  width: 26px; height: 26px; border: none; border-radius: 6px;
   background: linear-gradient(135deg, #1a6db5, #2a9fd6);
-  color: #fff; font-size: 1rem; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
   transition: opacity 0.15s, transform 0.1s; line-height: 1;
 }
 .score-btn:hover { opacity: 0.85; }
@@ -405,9 +352,8 @@ function formatFecha(fecha) {
 .btn-guardar:hover { opacity: 0.85; }
 
 .badge-finalizado {
-  font-size: 0.72rem; color: #7aaecc;
-  background: #f0f8ff; padding: 0.2rem 0.65rem;
-  border-radius: 20px; border: 1px solid #b8d9f0;
+  font-size: 0.72rem; color: #7aaecc; background: #f0f8ff;
+  padding: 0.2rem 0.65rem; border-radius: 20px; border: 1px solid #b8d9f0;
 }
 
 .guardado-ok { font-size: 0.78rem; color: #27ae60; font-weight: 600; }
